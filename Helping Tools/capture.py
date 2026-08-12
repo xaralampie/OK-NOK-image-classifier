@@ -5,10 +5,8 @@ import cv2
 
 def get_camera():
   for index in [0, 2]:  # Checks index 1 first (common for external USB)
-    # cv2.CAP_DSHOW speeds up initialization on Windows
     cap = cv2.VideoCapture(index, cv2.CAP_DSHOW)
     if cap.isOpened():
-      # Test if we can actually read a frame
       ret, frame = cap.read()
       if ret:
         print(f'Successfully connected to camera at index {index}.')
