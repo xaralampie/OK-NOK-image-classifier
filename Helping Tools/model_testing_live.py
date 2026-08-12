@@ -1,13 +1,3 @@
-# ============================================================
-# CONFIGURATION
-# ============================================================
-ONNX_PATH = "black_connector.onnx"
-CLASSES_PATH = "black_connector_classes.json"
-CAMERA_INDEX = 0  # 0 or 1
-SMOOTHING_WINDOW = 8  # Majority vote smoothing over recent frames
-RESIZE_WIDTH = 640  # Set to 640 for optimal speed on Raspberry Pi 3
-# ============================================================
-
 import argparse
 from collections import Counter, deque
 import json
@@ -15,12 +5,20 @@ import time
 import cv2
 import numpy as np
 
+# ============================================================
+# CONFIGURATION
+# ============================================================
+ONNX_PATH = "black_connector.onnx"
+CLASSES_PATH = "black_connector_classes.json"
+CAMERA_INDEX = 0  # 0 or 1
+SMOOTHING_WINDOW = 8
+RESIZE_WIDTH = 640
+
 
 # =========================================
 # ONNX / OpenCV Helper Functions
 # =========================================
 def load_onnx_model(onnx_path, classes_path):
-  """Loads ONNX model using OpenCV DNN engine (No PyTorch needed)."""
   net = cv2.dnn.readNetFromONNX(onnx_path)
 
   with open(classes_path, "r") as f:
@@ -30,12 +28,10 @@ def load_onnx_model(onnx_path, classes_path):
 
 
 def preprocess_frame(frame_bgr):
-  """Replaces torchvision.transforms (Resize 224x224, RGB, ImageNet Normalize)."""
   resized = cv2.resize(frame_bgr, (224, 224))
   rgb = cv2.cvtColor(resized, cv2.COLOR_BGR2RGB)
   img = rgb.astype(np.float32) / 255.0
 
-  # ImageNet Mean & Std Normalization
   mean = np.array([0.485, 0.456, 0.406], dtype=np.float32)
   std = np.array([0.229, 0.224, 0.225], dtype=np.float32)
   img = (img - mean) / std
@@ -47,7 +43,6 @@ def preprocess_frame(frame_bgr):
 
 
 def softmax(x):
-  """Numerically stable softmax in NumPy."""
   e_x = np.exp(x - np.max(x))
   return e_x / e_x.sum(axis=1, keepdims=True)
 
@@ -120,12 +115,10 @@ def main(onnx_path, classes_path, camera_index, smoothing_window, resize_width):
   net, class_names = load_onnx_model(onnx_path, classes_path)
   print(f"Loaded ONNX model with classes: {class_names}")
 
-  # V4L2 driver for Linux/Raspberry Pi
   cap = cv2.VideoCapture(camera_index, cv2.CAP_V4L2)
   cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*"MJPG"))
 
   if not cap.isOpened():
-    # Fallback for Windows/macOS testing
     cap = cv2.VideoCapture(camera_index)
 
   if not cap.isOpened():
