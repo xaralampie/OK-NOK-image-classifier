@@ -4,7 +4,6 @@ import cv2
 
 
 def get_camera():
-  """Tries to open USB camera by testing indices 0, 1, and 2."""
   for index in [0, 2]:  # Checks index 1 first (common for external USB)
     # cv2.CAP_DSHOW speeds up initialization on Windows
     cap = cv2.VideoCapture(index, cv2.CAP_DSHOW)
@@ -30,7 +29,6 @@ def main():
     print('Check USB cable connection and camera privacy settings.')
     return
 
-  # Set high-resolution output (adjust if needed)
   cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
   cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
 
@@ -60,7 +58,6 @@ def main():
       print(f'[SAVED] {img_path}')
       img_counter += 1
 
-    # Exit on 'q' or ESC
     elif key in (ord('q'), 27):
       print('Exiting feed...')
       break
