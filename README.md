@@ -227,6 +227,9 @@ cv2.putText(annotated_img, text, (20, 50), cv2.FONT_HERSHEY_SIMPLEX, 1.0, color,
 ```
 Applies visual indicators directly to BGR numpy arrays and saves the rendered visual feedback file (`inspection_result.png`).
 
+
+### HELPING TOOLS FOLDER CONSISTS OF PYTHON SCRIPTS THAT MAY BE OF USE
+
 ---
 
 ## License
