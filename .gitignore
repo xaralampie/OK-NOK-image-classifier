@@ -1,0 +1,17 @@
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+*.pt
+*.pth
+*.onnx
+data/*
+!data/.gitkeep
+inspection_result.png
+*.png
+*.jpg
+*.jpeg
+.vscode/
+.idea/
+.DS_Store
