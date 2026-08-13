@@ -10,6 +10,7 @@ from torchvision import transforms, models
 from torchvision.models import ResNet18_Weights
 from sklearn.model_selection import StratifiedKFold
 from PIL import Image
+from tqdm import tqdm
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -136,16 +137,22 @@ def train_kfold_pipeline(data_dir="data", n_splits=5, max_epochs=20, early_stop_
     file_paths, labels, class_names = collect_dataset_files(data_dir)
     num_classes = len(class_names)
 
+    print(f"\n[INFO] Device in use: {device}")
+    print(f"[INFO] Found {len(file_paths)} samples across classes: {class_names}")
+
     class_counts = np.bincount(labels)
     min_class_count = class_counts.min()
 
     if n_splits > min_class_count:
         n_splits = max(2, min_class_count)
+        print(f"[INFO] Adjusted n_splits to {n_splits} based on smallest class count.")
 
     kfold = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=42)
     fold_accuracies = []
 
     for fold, (train_idx, val_idx) in enumerate(kfold.split(file_paths, labels)):
+        print(f"\n{'='*25} FOLD {fold + 1}/{n_splits} {'='*25}")
+
         train_ds = CustomImageDataset(file_paths[train_idx], labels[train_idx], transform=train_transform)
         val_ds = CustomImageDataset(file_paths[val_idx], labels[val_idx], transform=val_transform)
 
@@ -167,8 +174,16 @@ def train_kfold_pipeline(data_dir="data", n_splits=5, max_epochs=20, early_stop_
         for epoch in range(max_epochs):
             model.train()
             running_loss = 0.0
+            correct_train = 0
+            total_train = 0
 
-            for images, targets in train_loader:
+            pbar = tqdm(
+                train_loader,
+                desc=f"Fold {fold + 1} | Epoch {epoch + 1:02d}/{max_epochs:02d} [Train]",
+                leave=False
+            )
+
+            for images, targets in pbar:
                 images, targets = images.to(device), targets.to(device)
 
                 optimizer.zero_grad()
@@ -178,9 +193,27 @@ def train_kfold_pipeline(data_dir="data", n_splits=5, max_epochs=20, early_stop_
                 optimizer.step()
 
                 running_loss += loss.item() * images.size(0)
+                _, preds = torch.max(outputs, 1)
+                correct_train += torch.sum(preds == targets.data).item()
+                total_train += targets.size(0)
+
+                current_batch_loss = loss.item()
+                pbar.set_postfix(batch_loss=f"{current_batch_loss:.4f}")
+
+            train_loss = running_loss / total_train
+            train_acc = correct_train / total_train
 
             val_loss, val_acc = evaluate(model, val_loader, criterion)
             scheduler.step(val_loss)
+            current_lr = optimizer.param_groups[0]['lr']
+
+            print(
+                f"Epoch {epoch + 1:02d}/{max_epochs:02d} | "
+                f"Train Loss: {train_loss:.4f} - Train Acc: {train_acc * 100:.2f}% | "
+                f"Val Loss: {val_loss:.4f} - Val Acc: {val_acc * 100:.2f}% | "
+                f"LR: {current_lr:.1e}",
+                end=""
+            )
 
             if val_loss < best_val_loss:
                 best_val_loss = val_loss
@@ -190,12 +223,21 @@ def train_kfold_pipeline(data_dir="data", n_splits=5, max_epochs=20, early_stop_
                     {"model_state": model.state_dict(), "class_names": class_names},
                     f"best_model_fold{fold}.pt"
                 )
+                print(" -> [Model Saved]")
             else:
                 patience_counter += 1
+                print(f" -> [Patience: {patience_counter}/{early_stop_patience}]")
+
                 if patience_counter > early_stop_patience:
+                    print(f"[INFO] Early stopping triggered for Fold {fold + 1}")
                     break
 
+        print(f"Fold {fold + 1} Best Validation Accuracy: {best_val_acc * 100:.2f}%")
         fold_accuracies.append(best_val_acc)
+
+    print(f"\n{'='*50}")
+    print(f"K-Fold Training Complete. Mean Val Accuracy: {np.mean(fold_accuracies) * 100:.2f}%")
+    print(f"{'='*50}\n")
 
     return class_names
 
@@ -239,20 +281,25 @@ def inspect_connector(image, model, class_names):
 # =========================================
 
 if __name__ == "__main__":
-    # 1. Train model on OK / NOK pictures
     class_names = train_kfold_pipeline(data_dir="data", n_splits=2, max_epochs=15)
 
-    # 2. Reload trained model checkpoint (Fold 0)
     checkpoint = torch.load("best_model_fold0.pt", map_location=device)
     saved_classes = checkpoint["class_names"]
 
     deployed_model = build_model(num_classes=len(saved_classes)).to(device)
     deployed_model.load_state_dict(checkpoint["model_state"])
 
-    # 3. Test on a sample image from 'data' folder
-    test_image_path = list(Path("data").glob("*.png"))[0]
-    test_image = cv2.imread(str(test_image_path))
+    image_extensions = ("*.png", "*.jpg", "*.jpeg")
+    test_images = []
+    for ext in image_extensions:
+        test_images.extend(Path("data").glob(ext))
 
-    status, conf, result_view = inspect_connector(test_image, deployed_model, saved_classes)
+    if test_images:
+        test_image_path = test_images[0]
+        test_image = cv2.imread(str(test_image_path))
 
-    cv2.imwrite("inspection_result.png", result_view)
+        status, conf, result_view = inspect_connector(test_image, deployed_model, saved_classes)
+        cv2.imwrite("inspection_result.png", result_view)
+        print(f"[INFO] Inspection result saved to 'inspection_result.png' ({status} - {conf*100:.2f}%)")
+    else:
+        print("[WARNING] No test image found in 'data' directory.")
