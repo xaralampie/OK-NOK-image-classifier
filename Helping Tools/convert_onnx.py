@@ -5,9 +5,7 @@ import torch.nn as nn
 from torchvision import models
 
 CHECKPOINTS = [
-    "black_connector.pt",
-    "white_connector.pt",
-    "green_connector.pt",
+    "ADD MODELS TO CONVERT TO ONNS (MULTIPLE AT ONCE WORK ALSO)"
 ]
 
 
@@ -29,9 +27,9 @@ def convert_pt_to_onnx(pt_path):
     print(f"[SKIP] File not found: {pt_path}")
     return
 
-  base_name = os.path.splitext(pt_path)[0]  # e.g. "black_connector"
-  onnx_path = f"{base_name}.onnx"  # e.g. "black_connector.onnx"
-  json_path = f"{base_name}_classes.json"  # e.g. "black_connector_classes.json"
+  base_name = os.path.splitext(pt_path)[0]
+  onnx_path = f"{base_name}.onnx"
+  json_path = f"{base_name}_classes.json"
 
   print(f"\n--- Processing: {pt_path} ---")
 

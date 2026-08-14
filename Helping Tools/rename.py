@@ -2,7 +2,7 @@ import os
 import shutil
 from pathlib import Path
 
-def rename_and_move_images(source_folder, dest_folder="data", prefix="connector_1", extensions=(".jpg", ".jpeg", ".png", ".bmp")):
+def rename_and_move_images(source_folder, dest_folder="data", prefix="dummy", extensions=(".jpg", ".jpeg", ".png", ".bmp")):
     source = Path(source_folder)
     destination = Path(dest_folder)
 
@@ -22,7 +22,7 @@ def rename_and_move_images(source_folder, dest_folder="data", prefix="connector_
 
     print(f"Found {len(image_files)} images in '{source}'. Moving to '{destination}'...\n")
 
-    for idx, file_path in enumerate(image_files, start=218):
+    for idx, file_path in enumerate(image_files, start=0):
         new_filename = f"{prefix}_{idx:04d}{file_path.suffix.lower()}"
         target_path = destination / new_filename
 
@@ -38,5 +38,5 @@ if __name__ == "__main__":
     rename_and_move_images(
         source_folder=SOURCE_FOLDER,
         dest_folder=DEST_FOLDER,
-        prefix="NOK"
+        prefix="NOK" #OK/NOK MAKES THE FILE OK/NOK_x
     )

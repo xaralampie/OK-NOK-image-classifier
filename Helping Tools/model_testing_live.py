@@ -8,9 +8,9 @@ import numpy as np
 # ============================================================
 # CONFIGURATION
 # ============================================================
-ONNX_PATH = "black_connector.onnx"
-CLASSES_PATH = "black_connector_classes.json"
-CAMERA_INDEX = 0  # 0 or 1
+ONNX_PATH = "PATH TO MODEL ONNX FILE"
+CLASSES_PATH = "PATH TO MODEL JSON FILE"
+CAMERA_INDEX = 0
 SMOOTHING_WINDOW = 8
 RESIZE_WIDTH = 640
 
@@ -151,7 +151,7 @@ def main(onnx_path, classes_path, camera_index, smoothing_window, resize_width):
     prev_time = now
 
     display_frame = draw_overlay(frame, label, confidence, fps, smoothed_label)
-    cv2.imshow("Connector Classifier - Live", display_frame)
+    cv2.imshow("Object Classifier - Live", display_frame)
 
     key = cv2.waitKey(1) & 0xFF
     if key == ord("q"):

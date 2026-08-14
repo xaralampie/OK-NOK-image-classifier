@@ -4,7 +4,7 @@ import cv2
 
 
 def get_camera():
-  for index in [0, 2]:  # Checks index 1 first (common for external USB)
+  for index in [0, 2]:
     cap = cv2.VideoCapture(index, cv2.CAP_DSHOW)
     if cap.isOpened():
       ret, frame = cap.read()
@@ -23,14 +23,13 @@ def main():
   cap = get_camera()
 
   if cap is None:
-    print('Error: Could not find or open Logitech USB camera.')
-    print('Check USB cable connection and camera privacy settings.')
+    print('Error: Could not find or open')
     return
 
   cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
   cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
 
-  print('\n--- Logitech Feed Active ---')
+  print('\n--- Feed Active ---')
   print('Press [SPACEBAR] to capture an image.')
   print('Press [Q] or [ESC] to quit.')
 
@@ -39,14 +38,13 @@ def main():
   while True:
     ret, frame = cap.read()
     if not ret:
-      print('Error: Failed to grab frame from Logitech camera.')
+      print('Error: Failed to grab frame from camera.')
       break
 
-    cv2.imshow('Logitech USB Camera', frame)
+    cv2.imshow('Detection Camera', frame)
 
     key = cv2.waitKey(1) & 0xFF
 
-    # Spacebar key
     if key == 32:
       timestamp = time.strftime('%Y%m%d_%H%M%S')
       img_name = f'capture_{timestamp}_{img_counter:03d}.png'
