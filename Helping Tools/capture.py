@@ -4,7 +4,7 @@ import cv2
 
 
 def get_camera():
-  for index in [0, 2]:
+  for index in [0, 2]: #If integrated Camera at index 0, searches other indexes to find other camera.
     cap = cv2.VideoCapture(index, cv2.CAP_DSHOW)
     if cap.isOpened():
       ret, frame = cap.read()
@@ -16,7 +16,7 @@ def get_camera():
 
 
 def main():
-  output_dir = 'dataa'
+  output_dir = 'FOLDER WHERE PHOTOS ARE SAVED'
   if not os.path.exists(output_dir):
     os.makedirs(output_dir)
 

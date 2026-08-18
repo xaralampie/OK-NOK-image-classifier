@@ -69,7 +69,7 @@ def main():
   print("\n" + "=" * 50)
   print(" Batch Export Complete!")
   print("=" * 50)
-  print("\nCopy the following 6 files to your Raspberry Pi:")
+
   for pt_file in CHECKPOINTS:
     base = os.path.splitext(pt_file)[0]
     if os.path.exists(f"{base}.onnx"):

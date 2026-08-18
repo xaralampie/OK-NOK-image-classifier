@@ -8,12 +8,12 @@ import numpy as np
 # ============================================================
 # CONFIGURATION
 # ============================================================
+
 ONNX_PATH = "PATH TO MODEL ONNX FILE"
 CLASSES_PATH = "PATH TO MODEL JSON FILE"
 CAMERA_INDEX = 0
 SMOOTHING_WINDOW = 8
 RESIZE_WIDTH = 640
-
 
 # =========================================
 # ONNX / OpenCV Helper Functions
@@ -36,7 +36,6 @@ def preprocess_frame(frame_bgr):
   std = np.array([0.229, 0.224, 0.225], dtype=np.float32)
   img = (img - mean) / std
 
-  # HWC -> CHW -> Batch (1, 3, 224, 224)
   img = img.transpose((2, 0, 1))
   img = np.expand_dims(img, axis=0)
   return img

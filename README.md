@@ -152,13 +152,16 @@ NOK: WRONG SIDE (91%)
 | Setting | Value |
 |---|---|
 | Model | ResNet-18 |
-| Image size | 224 × 224 |
+| Image size | 480 × 480 |
 | Optimizer | Adam |
 | Learning rate | 0.001 |
 | Batch size | Up to 8 |
 | Maximum epochs | 15 |
 | Early stopping | 5 epochs |
 | Loss | CrossEntropyLoss |
+
+
+Note: These can be adjusted to your needs.
 
 ## Data Augmentation
 

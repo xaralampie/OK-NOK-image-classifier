@@ -32,11 +32,11 @@ def rename_and_move_images(source_folder, dest_folder="data", prefix="dummy", ex
     print(f"\nDone! Moved and renamed {len(image_files)} files into '{destination}'.")
 
 if __name__ == "__main__":
-    SOURCE_FOLDER = "dataa"
-    DEST_FOLDER = "data"
+    SOURCE_FOLDER = "WHERE IMAGES ARE"
+    DEST_FOLDER = "WHERE IMAGES SHOULD BE SAVED"
 
     rename_and_move_images(
         source_folder=SOURCE_FOLDER,
         dest_folder=DEST_FOLDER,
-        prefix="NOK" #OK/NOK MAKES THE FILE OK/NOK_x
+        prefix="NOK" #OK/NOK NAMES THE PICTURE OK/NOK_x
     )
